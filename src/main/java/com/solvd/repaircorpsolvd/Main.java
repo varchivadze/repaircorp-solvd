@@ -478,14 +478,6 @@ public class Main {
             LOGGER.error(e.getMessage());
         }
 
-        // for git conflict
-        for (int i = 0; i < 100; i++) {
-            LOGGER.info("{}", i);
-        }
-        LOGGER.info("{}", 1);
-        LOGGER.info("{}", 2);
-
-
         ConnectionPool connectionPool = ConnectionPool.getInstance();
 
         for (int i = 0; i < 7; i++) {
