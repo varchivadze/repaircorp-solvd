@@ -454,23 +454,6 @@ public class Main {
         executorService.execute(task3);
         executorService.close();
 
-        ExecutorService poolExecutor = Executors.newFixedThreadPool(7);
-        IntStream.range(0, 7).forEach(i -> poolExecutor.submit(() -> {
-                    Connection connect = connection.getConnection();
-                    if (connect != null) {
-                        try {
-                            String result = connect.mockFunc(3);
-                            LOGGER.info("Result -> {} \n {}", result, Thread.currentThread().getName());
-                        } catch (RuntimeException e) {
-                            LOGGER.error(e.getMessage());
-                        } finally {
-                            connection.releaseConnection(connect);
-                        }
-
-                    }
-                })
-        );
-        poolExecutor.close();
 
         CompletableFuture<String> firstTask = CompletableFuture.supplyAsync(() -> {
             try {
