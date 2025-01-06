@@ -7,7 +7,6 @@ import java.util.stream.IntStream;
 
 public class Connection {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Connection.class);
 
     public Connection() {

@@ -244,24 +244,24 @@ public class Main {
 
         ListIterator<String> iterator = linkedList.listIterator();
 
-        // Test hasNext and next
-//        LOGGER.info("Iterating forward:");
-//        while (iterator.hasNext()) {
-//            LOGGER.info("Next: {}", iterator.next());
-//        }
-//        LOGGER.info("\nIterating backward:");
-//        while (iterator.hasPrevious()) {
-//            LOGGER.info("Previous: {}", iterator.previous());
-//        }
-//        iterator.add("Five");
-//        iterator.set("Six");
-//        while (iterator.hasNext()) {
-//            LOGGER.info("Next: {}", iterator.next());
-//        }
-//
-//        while (iterator.hasPrevious()) {
-//            LOGGER.info("Previous: {}", iterator.previous());
-//        }
+//         Test hasNext and next
+        LOGGER.info("Iterating forward:");
+        while (iterator.hasNext()) {
+            LOGGER.info("Next: {}", iterator.next());
+        }
+        LOGGER.info("\nIterating backward:");
+        while (iterator.hasPrevious()) {
+            LOGGER.info("Previous: {}", iterator.previous());
+        }
+        iterator.add("Five");
+        iterator.set("Six");
+        while (iterator.hasNext()) {
+            LOGGER.info("Next: {}", iterator.next());
+        }
+
+        while (iterator.hasPrevious()) {
+            LOGGER.info("Previous: {}", iterator.previous());
+        }
 //        Map<String, Integer> retTxt = UniqCounter.uniqWordsTxt("src/main/resources/Financier_1109.txt");
 //        for (Map.Entry<String, Integer> entry : retTxt.entrySet()) {
 //            LOGGER.info("{}: {}", entry.getKey(), entry.getValue());
@@ -274,13 +274,13 @@ public class Main {
 //        executiveDirector.setSalary(teamLead, new BigDecimal("20000"));
 //        executiveDirector.setSalary(teamLead, new BigDecimal("2000"));
 //        executiveDirector.setSalary(teamLead, new BigDecimal("5000"));
-
-        // possible networks data
+//
+////         possible networks data
 //        for (NetworkType networkType : NetworkType.values()) {
 //            LOGGER.info("{} Max speed {}, median speed {}, delay {}", networkType,
 //                    networkType.getMaxSpeedMb(), networkType.getMedianSpeedMb(), networkType.getDelayMs());
 //        }
-
+//
 //        Consumer<Employee> addBonus = employee -> employee.setBonus(employee.getBonus().add(new BigDecimal("20")));
 //        repairService.addBonusAll(addBonus);
 //
@@ -290,8 +290,8 @@ public class Main {
 //                .map(val -> String.valueOf(val)) // or (String::valueOf) by ref
 //                .collect(Collectors.joining());
 //        LOGGER.info(randomString.get());
-
-
+//
+//
 //        dekiveryMan.setBonus(BigDecimal.ZERO);
 //        Predicate<Employee> hasNoBonus = employee -> employee.getBonus().equals(BigDecimal.ZERO);
 //        repairService.getEmployees().forEach(employee ->
@@ -301,7 +301,7 @@ public class Main {
 //                                String.format("Employee %s has bonus", employee.getSurname())
 //                )
 //        );
-
+//
 //        Function<Employee, String> getSalary = employee ->
 //                "Employee " + employee.getSurname() +
 //                        " has total " + employee.getBonus()
@@ -313,9 +313,9 @@ public class Main {
 //        Runnable toCallLater = () -> employees.forEach(employee ->
 //                LOGGER.info("From runnable {}", getSalary.apply(employee))
 //        );
-
-        // do something
-
+//
+//         do something
+//
 //        toCallLater.run();
 //
 //        repairService.getOrders()
@@ -362,139 +362,128 @@ public class Main {
 //                .max(Comparator.comparingInt(String::length))
 //                .orElse(null);
 //        LOGGER.info("The biggest address -> {}", theBiggestAddress);
+
+        ReflectionExample.processReflection();
+
+        Thread thread = new Thread(() -> IntStream.range(1, 10).forEach(i -> {
+            LOGGER.info("Thread 1 -> {}", i);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.error(e.getMessage());
+            }
+        }));
+
+        try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
+            executorService.execute(() -> IntStream.range(100, 110).forEach(i -> {
+                LOGGER.info("Virtual Thread 1.5 -> {}", i);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error(e.getMessage());
+                }
+
+            }));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
 //
-//        ReflectionExample.processReflection();
+
+        Runnable runnable = () -> IntStream.range(0, 10).forEach(i -> { // or new Runnable() @Override ..
+            LOGGER.info("Thread 2 -> {}", i);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.error(e.getMessage());
+            }
+        });
+
+
+        Thread thread1 = new Thread(thread);
+        Thread thread2 = new Thread(runnable);
+
+        ExecutorService executorServiceFirst = Executors.newVirtualThreadPerTaskExecutor();
+
+        executorServiceFirst.execute(() -> {
+            // LOGGER does not see the name for virtual threads
+            Thread.currentThread().setName("Virtual thread 1.5");
+            IntStream.range(100, 110).forEach(i -> {
+                LOGGER.info("Virtual Thread 1.5 -> {}", i);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error(e.getMessage());
+                }
+            });
+        });
+        thread1.start();
+        thread2.start();
+        executorServiceFirst.close();
+//        // fixed executor pool
 //
-//        Thread thread = new Thread(() -> IntStream.range(1, 10).forEach(i -> {
-//            LOGGER.info("Thread 1 -> {}", i);
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//                LOGGER.error(e.getMessage());
-//            }
-//        }));
-//
-//        // or
-//        // will block parallel execution due to sync try operation
-//
-//        try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
-//            executorService.execute(() -> IntStream.range(100, 110).forEach(i -> {
-//                LOGGER.info("Virtual Thread 1.5 -> {}", i);
-//                try {
-//                    Thread.sleep(500);
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt();
-//                    LOGGER.error(e.getMessage());
-//                }
-//
-//            }));
-//        } catch (Exception e) {
-//            LOGGER.error(e.getMessage());
-//        }
-////
-//
-//        Runnable runnable = () -> IntStream.range(0, 10).forEach(i -> { // or new Runnable() @Override ..
-//            LOGGER.info("Thread 2 -> {}", i);
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//                LOGGER.error(e.getMessage());
-//            }
-//        });
-//
-//
-//        Thread thread1 = new Thread(thread);
-//        Thread thread2 = new Thread(runnable);
-//
-//        ExecutorService executorServiceFirst = Executors.newVirtualThreadPerTaskExecutor();
-//
-//        executorServiceFirst.execute(() -> {
-//            // LOGGER does not see the name for virtual threads
-//            Thread.currentThread().setName("Virtual thread 1.5");
-//            IntStream.range(100, 110).forEach(i -> {
-//                LOGGER.info("Virtual Thread 1.5 -> {}", i);
-//                try {
-//                    Thread.sleep(500);
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt();
-//                    LOGGER.error(e.getMessage());
-//                }
-//            });
-//        });
-//        thread1.start();
-//        thread2.start();
-//        executorServiceFirst.close();
-////        // fixed executor pool
-////
-//        try (ExecutorService fixedExecutor = Executors.newFixedThreadPool(2)) {
-//            fixedExecutor.execute(thread);
-//            fixedExecutor.execute(runnable);
-//        }
-//
-//        /*
-//        or
-//        fixedExecutor.execute(thread1);
-//           fixedExecutor.execute(thread2);
-//           */
-//
-//
-//
-//        CompletableFuture<String> firstTask = CompletableFuture.supplyAsync(() -> {
-//            try {
-//                LOGGER.info("Task 1 started");
-//                Thread.sleep(500);
-//                return "Task 2 is finished";
-//            } catch (InterruptedException e) {
-//                LOGGER.error(e.getMessage());
-//                Thread.currentThread().interrupt();
-//                return "Not finished";
-//            }
-//        });
-//
-//        firstTask.thenAccept(res -> LOGGER.info("The result of first task is -> {}", res));
-//
-//        CompletableFuture<Void> secondTask = CompletableFuture.runAsync(() -> {
-//            try {
-//                LOGGER.info("Task 2 Started");
-//                Thread.sleep(1000);
-//                LOGGER.info("Task 2 Finished");
-//            } catch (InterruptedException e) {
-//                LOGGER.error(e.getMessage());
-//                Thread.currentThread().interrupt();
-//            }
-//        });
-//
-//        CompletableFuture<Void> thirdTask = CompletableFuture.runAsync(() -> {
-//            try {
-//                LOGGER.info("Task 3 Started");
-//                Thread.sleep(2000);
-//                LOGGER.info("Task 3 Finished");
-//            } catch (InterruptedException e) {
-//                LOGGER.error(e.getMessage());
-//                Thread.currentThread().interrupt();
-//            }
-//        });
-//
-//        try {
-//            firstTask.get();
-//        } catch (InterruptedException | ExecutionException e) {
-//            LOGGER.error(e.getMessage());
-//        }
-//        CompletableFuture<Void> otherTasks = CompletableFuture.allOf(secondTask, thirdTask);
-//        try {
-//            otherTasks.get();
-//        } catch (InterruptedException | ExecutionException e) {
-//            LOGGER.error(e.getMessage());
-//        }
-//
-//        // for git conflict
-//        for (int i = 0; i < 100; i++) {
-//            LOGGER.info("{}", i);
-//        }
-//        LOGGER.info("{}", 1);
-//        LOGGER.info("{}", 2);
+        try (ExecutorService fixedExecutor = Executors.newFixedThreadPool(2)) {
+            fixedExecutor.execute(thread);
+            fixedExecutor.execute(runnable);
+        }
+
+        CompletableFuture<String> firstTask = CompletableFuture.supplyAsync(() -> {
+            try {
+                LOGGER.info("Task 1 started");
+                Thread.sleep(500);
+                return "Task 2 is finished";
+            } catch (InterruptedException e) {
+                LOGGER.error(e.getMessage());
+                Thread.currentThread().interrupt();
+                return "Not finished";
+            }
+        });
+
+        firstTask.thenAccept(res -> LOGGER.info("The result of first task is -> {}", res));
+
+        CompletableFuture<Void> secondTask = CompletableFuture.runAsync(() -> {
+            try {
+                LOGGER.info("Task 2 Started");
+                Thread.sleep(1000);
+                LOGGER.info("Task 2 Finished");
+            } catch (InterruptedException e) {
+                LOGGER.error(e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        CompletableFuture<Void> thirdTask = CompletableFuture.runAsync(() -> {
+            try {
+                LOGGER.info("Task 3 Started");
+                Thread.sleep(2000);
+                LOGGER.info("Task 3 Finished");
+            } catch (InterruptedException e) {
+                LOGGER.error(e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        try {
+            firstTask.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error(e.getMessage());
+        }
+        CompletableFuture<Void> otherTasks = CompletableFuture.allOf(secondTask, thirdTask);
+        try {
+            otherTasks.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        // for git conflict
+        for (int i = 0; i < 100; i++) {
+            LOGGER.info("{}", i);
+        }
+        LOGGER.info("{}", 1);
+        LOGGER.info("{}", 2);
 
 
         ConnectionPool connectionPool = ConnectionPool.getInstance();

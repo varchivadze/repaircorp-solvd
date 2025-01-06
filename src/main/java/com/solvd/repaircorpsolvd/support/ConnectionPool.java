@@ -18,7 +18,6 @@ public class ConnectionPool {
         connectionPool = new ArrayBlockingQueue<>(MAX_CONNECTIONS);
     }
 
-
     public static ConnectionPool getInstance() {
         if (instance == null) {
             synchronized (ConnectionPool.class) {
