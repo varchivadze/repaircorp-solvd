@@ -244,24 +244,24 @@ public class Main {
 
         ListIterator<String> iterator = linkedList.listIterator();
 
-        // Test hasNext and next
-//        LOGGER.info("Iterating forward:");
-//        while (iterator.hasNext()) {
-//            LOGGER.info("Next: {}", iterator.next());
-//        }
-//        LOGGER.info("\nIterating backward:");
-//        while (iterator.hasPrevious()) {
-//            LOGGER.info("Previous: {}", iterator.previous());
-//        }
-//        iterator.add("Five");
-//        iterator.set("Six");
-//        while (iterator.hasNext()) {
-//            LOGGER.info("Next: {}", iterator.next());
-//        }
-//
-//        while (iterator.hasPrevious()) {
-//            LOGGER.info("Previous: {}", iterator.previous());
-//        }
+//         Test hasNext and next
+        LOGGER.info("Iterating forward:");
+        while (iterator.hasNext()) {
+            LOGGER.info("Next: {}", iterator.next());
+        }
+        LOGGER.info("\nIterating backward:");
+        while (iterator.hasPrevious()) {
+            LOGGER.info("Previous: {}", iterator.previous());
+        }
+        iterator.add("Five");
+        iterator.set("Six");
+        while (iterator.hasNext()) {
+            LOGGER.info("Next: {}", iterator.next());
+        }
+
+        while (iterator.hasPrevious()) {
+            LOGGER.info("Previous: {}", iterator.previous());
+        }
 //        Map<String, Integer> retTxt = UniqCounter.uniqWordsTxt("src/main/resources/Financier_1109.txt");
 //        for (Map.Entry<String, Integer> entry : retTxt.entrySet()) {
 //            LOGGER.info("{}: {}", entry.getKey(), entry.getValue());
@@ -274,13 +274,13 @@ public class Main {
 //        executiveDirector.setSalary(teamLead, new BigDecimal("20000"));
 //        executiveDirector.setSalary(teamLead, new BigDecimal("2000"));
 //        executiveDirector.setSalary(teamLead, new BigDecimal("5000"));
-
-        // possible networks data
+//
+////         possible networks data
 //        for (NetworkType networkType : NetworkType.values()) {
 //            LOGGER.info("{} Max speed {}, median speed {}, delay {}", networkType,
 //                    networkType.getMaxSpeedMb(), networkType.getMedianSpeedMb(), networkType.getDelayMs());
 //        }
-
+//
 //        Consumer<Employee> addBonus = employee -> employee.setBonus(employee.getBonus().add(new BigDecimal("20")));
 //        repairService.addBonusAll(addBonus);
 //
@@ -290,8 +290,8 @@ public class Main {
 //                .map(val -> String.valueOf(val)) // or (String::valueOf) by ref
 //                .collect(Collectors.joining());
 //        LOGGER.info(randomString.get());
-
-
+//
+//
 //        dekiveryMan.setBonus(BigDecimal.ZERO);
 //        Predicate<Employee> hasNoBonus = employee -> employee.getBonus().equals(BigDecimal.ZERO);
 //        repairService.getEmployees().forEach(employee ->
@@ -301,7 +301,7 @@ public class Main {
 //                                String.format("Employee %s has bonus", employee.getSurname())
 //                )
 //        );
-
+//
 //        Function<Employee, String> getSalary = employee ->
 //                "Employee " + employee.getSurname() +
 //                        " has total " + employee.getBonus()
@@ -313,9 +313,9 @@ public class Main {
 //        Runnable toCallLater = () -> employees.forEach(employee ->
 //                LOGGER.info("From runnable {}", getSalary.apply(employee))
 //        );
-
-        // do something
-
+//
+//         do something
+//
 //        toCallLater.run();
 //
 //        repairService.getOrders()
@@ -362,8 +362,8 @@ public class Main {
 //                .max(Comparator.comparingInt(String::length))
 //                .orElse(null);
 //        LOGGER.info("The biggest address -> {}", theBiggestAddress);
-//
-//        ReflectionExample.processReflection();
+
+        ReflectionExample.processReflection();
 
         Thread thread = new Thread(() -> IntStream.range(1, 10).forEach(i -> {
             LOGGER.info("Thread 1 -> {}", i);
@@ -374,9 +374,6 @@ public class Main {
                 LOGGER.error(e.getMessage());
             }
         }));
-
-        // or
-        // will block parallel execution due to sync try operation
 
         try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
             executorService.execute(() -> IntStream.range(100, 110).forEach(i -> {
@@ -433,28 +430,6 @@ public class Main {
             fixedExecutor.execute(runnable);
         }
 
-        /*
-        or
-        fixedExecutor.execute(thread1);
-           fixedExecutor.execute(thread2);
-           */
-
-
-        Connection connection = Connection.getInstance();
-//
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        Runnable task1 = () -> LOGGER.info("Finished 1 thread -> {}", connection.mockFunc(14));
-
-        Runnable task2 = () -> LOGGER.info("Finished 2 thread -> {}", connection.mockFunc(7));
-
-        Runnable task3 = () -> LOGGER.info("Finished 3 thread -> {}", connection.mockFunc(10));
-
-        executorService.execute(task1);
-        executorService.execute(task2);
-        executorService.execute(task3);
-        executorService.close();
-
-
         CompletableFuture<String> firstTask = CompletableFuture.supplyAsync(() -> {
             try {
                 LOGGER.info("Task 1 started");
@@ -503,11 +478,28 @@ public class Main {
             LOGGER.error(e.getMessage());
         }
 
-        // for git conflict
-        for (int i = 0; i < 100; i++) {
-            LOGGER.info("{}", i);
+        ConnectionPool connectionPool = ConnectionPool.getInstance();
+
+        for (int i = 0; i < 7; i++) {
+            Connection connection = connectionPool.getConnection();
+
+            Runnable toRun = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        connection.mockFunc();
+                    } finally {
+                        connectionPool.releaseConnection(connection);
+                    }
+
+                }
+            };
+
+
+            Thread connectionThread = new Thread(toRun);
+
+            connectionThread.start();
+
         }
-        LOGGER.info("{}", 1);
-        LOGGER.info("{}", 2);
     }
 }
